@@ -2,6 +2,7 @@ import { useStoreModal } from "@/hooks/use-stroe-modal";
 import Modal from "@/components/ui/modal";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
+import axios from "axios";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
    Form,
@@ -13,6 +14,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import toast from "react-hot-toast";
 
 const schema = z.object({
    name: z.string().min(3, { message: "Store name must be at least 3 word" }),
@@ -21,6 +24,7 @@ const schema = z.object({
 type schemaType = z.infer<typeof schema>;
 
 const StoreModal = () => {
+   const [isLoading, setIsLoading] = useState(false);
    const { isOpen, onClose } = useStoreModal();
 
    const form = useForm<schemaType>({
@@ -28,8 +32,15 @@ const StoreModal = () => {
    });
 
    const onSubmit = async (data: schemaType) => {
-      console.log(data);
-      //TODO: Create store
+      try {
+         setIsLoading(true);
+         const response = await axios.post("/api/stores", data);
+         toast.success("Store created.");
+      } catch (error) {
+         toast.error("Something went wrong.");
+      } finally {
+         setIsLoading(false);
+      }
    };
    return (
       <Modal
@@ -49,17 +60,19 @@ const StoreModal = () => {
                            <FormItem>
                               <FormLabel>Name</FormLabel>
                               <FormControl>
-                                 <Input placeholder="E-Commerce" {...field} />
+                                 <Input disabled={isLoading} placeholder="E-Commerce" {...field} />
                               </FormControl>
                               <FormMessage />
                            </FormItem>
                         )}
                      />
                      <div className="pt-6 space-x-2 flex items-center justify-end w-full">
-                        <Button variant="outline" onClick={onClose}>
+                        <Button disabled={isLoading} variant="outline" onClick={onClose}>
                            Cancel
                         </Button>
-                        <Button type="submit">Continue</Button>
+                        <Button disabled={isLoading} type="submit">
+                           Continue
+                        </Button>
                      </div>
                   </form>
                </Form>
