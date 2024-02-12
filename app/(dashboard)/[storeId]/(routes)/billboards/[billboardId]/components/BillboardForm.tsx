@@ -1,7 +1,6 @@
 "use client";
 
 import AlertModal from "@/components/modals/alert-modal";
-import ApiAlert from "@/components/ui/api-alert";
 import { Button } from "@/components/ui/button";
 import {
    Form,
@@ -15,9 +14,8 @@ import Heading from "@/components/ui/heading";
 import ImageUpload from "@/components/ui/image-upload";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { useOrigin } from "@/hooks/use-origin";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Billboard, Store } from "@prisma/client";
+import { Billboard } from "@prisma/client";
 import axios from "axios";
 import { Trash2 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
@@ -40,7 +38,6 @@ type BillboardFormProps = {
 const BillboardForm = ({ initialData }: BillboardFormProps) => {
    const params = useParams();
    const router = useRouter();
-   const origin = useOrigin();
 
    const [open, setOpen] = useState(false);
    const [isLoading, setIsLoading] = useState(false);
@@ -67,8 +64,8 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
             await axios.post(`/api/${params.storeId}/billboards`, data);
          }
 
-         router.refresh();
          router.push(`/${params.storeId}/billboards`);
+         router.refresh();
          toast.success(toastMessage);
       } catch (err) {
          toast.error("Something went wrong.");
@@ -81,7 +78,7 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
       try {
          setIsLoading(true);
          await axios.delete(`/api/${params.storeId}/billboards/${params.billboardId}`);
-         router.push("/");
+         router.push(`/${params.storeId}/billboards`);
          router.refresh();
          toast.success("Billboard deleted");
       } catch (err) {
@@ -106,9 +103,7 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
                   variant="destructive"
                   disabled={isLoading}
                   size="sm"
-                  onClick={() => {
-                     setOpen(true);
-                  }}
+                  onClick={() => setOpen(true)}
                >
                   <Trash2 className="h-4 w-4" />
                </Button>
@@ -159,7 +154,6 @@ const BillboardForm = ({ initialData }: BillboardFormProps) => {
                </Button>
             </form>
          </Form>
-         <Separator />
       </>
    );
 };
